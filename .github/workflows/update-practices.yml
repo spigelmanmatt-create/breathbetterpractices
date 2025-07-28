@@ -1,0 +1,31 @@
+name: Append New Practice from Webhook
+
+on:
+  repository_dispatch:
+    types: [add_practice]
+
+jobs:
+  append-practice:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Append practice data
+        run: |
+          echo '${{ github.event.client_payload.practice }}' > new.json
+          node .github/scripts/append.js
+
+      - name: Commit changes
+        run: |
+          git config --global user.email "bot@breathbetter.ai"
+          git config --global user.name "BreathBetter Bot"
+          git add practice-library.json
+          git commit -m "Add new practice"
+          git push
+
